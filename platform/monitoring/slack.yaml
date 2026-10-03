@@ -1,0 +1,20 @@
+# Create slack-webhook Secret in monitoring before applying; never commit webhook URL.
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: bookinfo-slack
+  namespace: monitoring
+spec:
+  route:
+    receiver: slack
+    groupBy: [alertname]
+    matchers:
+      - name: course
+        value: bookinfo
+        matchType: '='
+  receivers:
+    - name: slack
+      slackConfigs:
+        - apiURL: {name: slack-webhook, key: url}
+          channel: '#course-alerts'
+          sendResolved: true

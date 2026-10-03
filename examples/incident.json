@@ -1,0 +1,5 @@
+{
+  "alert": "BookinfoHighErrorRate",
+  "namespace": "bookinfo-develop",
+  "summary": "Productpage HTTP 500 after latest release. Investigate; require human approval for changes."
+}

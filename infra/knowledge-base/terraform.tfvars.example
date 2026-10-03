@@ -1,0 +1,3 @@
+region = "us-east-1"
+name = "devops-course-runbooks"
+documents_bucket = "REPLACE-globally-unique-runbook-bucket"

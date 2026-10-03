@@ -1,0 +1,4 @@
+{
+  "environment": "develop",
+  "summary": "Check the current Bookinfo health. Do not assume an incident exists. Report what the live evidence supports."
+}

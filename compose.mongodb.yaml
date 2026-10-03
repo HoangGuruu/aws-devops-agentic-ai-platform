@@ -1,0 +1,12 @@
+services:
+  ratings:
+    environment:
+      SERVICE_VERSION: v2
+      DB_TYPE: mongodb
+      MONGO_DB_URL: mongodb://mongodb:27017/test
+    depends_on: [mongodb]
+  mongodb:
+    build: bookinfo/src/mongodb
+    volumes: [mongo-data:/data/db]
+volumes:
+  mongo-data:

@@ -1,0 +1,20 @@
+name: devops-aws-ai-course
+services:
+  productpage:
+    build: bookinfo/src/productpage
+    ports: ["127.0.0.1:9080:9080"]
+    environment:
+      SESSION_SECRET: ${SESSION_SECRET:?Copy .env.example to .env and set SESSION_SECRET}
+      LAB_FAULT_MODE: ${LAB_FAULT_MODE:-off}
+    depends_on: [details, reviews, ratings]
+  details:
+    build: bookinfo/src/details
+  reviews:
+    build: bookinfo/src/reviews
+    environment:
+      ENABLE_RATINGS: "true"
+      STAR_COLOR: black
+  ratings:
+    build: bookinfo/src/ratings
+    environment:
+      SERVICE_VERSION: v1

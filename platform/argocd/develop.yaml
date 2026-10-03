@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bookinfo-develop
+  namespace: argocd
+spec:
+  project: bookinfo
+  source:
+    repoURL: https://github.com/REPLACE_OWNER/REPLACE_REPO.git
+    targetRevision: main
+    path: gitops/overlays/develop
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: bookinfo-develop
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true

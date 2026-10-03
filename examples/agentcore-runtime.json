@@ -1,0 +1,16 @@
+{
+  "agentRuntimeName": "devops_course_incident",
+  "agentRuntimeArtifact": {
+    "containerConfiguration": {
+      "containerUri": "YOUR_ECR_IMAGE_URI_WITH_TAG"
+    }
+  },
+  "roleArn": "arn:aws:iam::YOUR_ACCOUNT_ID:role/devops-course-agentcore-runtime",
+  "networkConfiguration": {
+    "networkMode": "PUBLIC"
+  },
+  "environmentVariables": {
+    "AWS_DEFAULT_REGION": "us-east-1",
+    "BEDROCK_MODEL_ID": "YOUR_MODEL_OR_PROFILE_ID"
+  }
+}

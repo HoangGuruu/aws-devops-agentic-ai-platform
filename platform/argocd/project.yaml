@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: bookinfo
+  namespace: argocd
+spec:
+  sourceRepos:
+  - https://github.com/REPLACE_OWNER/REPLACE_REPO.git
+  destinations:
+  - server: https://kubernetes.default.svc
+    namespace: bookinfo-develop
+  - server: https://kubernetes.default.svc
+    namespace: bookinfo-uat
+  - server: https://kubernetes.default.svc
+    namespace: bookinfo-staging
+  - server: https://kubernetes.default.svc
+    namespace: bookinfo-prod
+  clusterResourceWhitelist:
+  - group: ''
+    kind: Namespace
+  namespaceResourceWhitelist:
+  - group: ''
+    kind: Service
+  - group: ''
+    kind: ServiceAccount
+  - group: apps
+    kind: Deployment
+  - group: ''
+    kind: ConfigMap

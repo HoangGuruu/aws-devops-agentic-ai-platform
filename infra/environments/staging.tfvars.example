@@ -1,0 +1,13 @@
+region = "us-east-1"
+environment = "staging"
+name = "devops-course"
+cluster_version = "1.35"
+vpc_cidr = "10.22.0.0/16"
+allowed_api_cidrs = ["203.0.113.10/32"] # REPLACE with your workstation/VPN egress
+admin_principal_arn = "arn:aws:iam::111122223333:role/REPLACE-operator-role"
+github_repository = "REPLACE_OWNER/REPLACE_REPO"
+github_oidc_provider_arn = "arn:aws:iam::111122223333:oidc-provider/token.actions.githubusercontent.com"
+single_nat_gateway = true
+node_instance_type = "t3.large"
+node_desired_size = 2
+node_max_size = 4

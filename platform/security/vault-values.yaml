@@ -1,0 +1,34 @@
+# Isolated learning lab: private ClusterIP only, persistent integrated Raft, manual init/unseal.
+# TLS disabled ONLY on this private lab service; add TLS/HA/autounseal before real production.
+global:
+  tlsDisable: true
+server:
+  dev:
+    enabled: false
+  standalone:
+    enabled: false
+  ha:
+    enabled: true
+    replicas: 1
+    raft:
+      enabled: true
+      setNodeId: true
+      config: |
+        ui = true
+        listener "tcp" {
+          tls_disable = 1
+          address = "[::]:8200"
+          cluster_address = "[::]:8201"
+        }
+        storage "raft" { path = "/vault/data" }
+        service_registration "kubernetes" {}
+  dataStorage:
+    enabled: true
+    size: 2Gi
+    storageClass: course-gp3
+  service:
+    type: ClusterIP
+injector:
+  enabled: true
+ui:
+  enabled: false

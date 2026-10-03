@@ -1,0 +1,28 @@
+# HTTP-01 Gateway solver; cert-manager must have Gateway API support enabled.
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: letsencrypt-staging
+  namespace: bookinfo-develop
+spec:
+  acme:
+    email: admin@example.com
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    privateKeySecretRef: {name: letsencrypt-staging-account}
+    solvers:
+      - http01:
+          gatewayHTTPRoute:
+            parentRefs:
+              - name: bookinfo
+                namespace: bookinfo-develop
+                kind: Gateway
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: bookinfo
+  namespace: bookinfo-develop
+spec:
+  secretName: bookinfo-tls
+  dnsNames: [bookinfo.example.com]
+  issuerRef: {name: letsencrypt-staging, kind: Issuer}

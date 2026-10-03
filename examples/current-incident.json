@@ -1,0 +1,5 @@
+{
+  "environment": "develop",
+  "observed_at_utc": "REPLACE_WITH_YOUR_OBSERVED_UTC_TIME",
+  "summary": "Bookinfo productpage returns HTTP 500 after a recent release. Investigate live metrics, pods, logs, GitOps and runbooks. Propose a recovery action only if supported by evidence."
+}

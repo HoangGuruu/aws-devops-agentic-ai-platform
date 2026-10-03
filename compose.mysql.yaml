@@ -1,0 +1,20 @@
+services:
+  ratings:
+    environment:
+      SERVICE_VERSION: v2
+      DB_TYPE: mysql
+      MYSQL_DB_HOST: mysql
+      MYSQL_DB_PORT: '3306'
+      MYSQL_DB_USER: ratings
+      MYSQL_DB_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}
+    depends_on: [mysql]
+  mysql:
+    build: bookinfo/src/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}
+      MYSQL_DATABASE: test
+      MYSQL_USER: ratings
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}
+    volumes: [mysql-data:/var/lib/mysql]
+volumes:
+  mysql-data:

@@ -1,0 +1,520 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: productpage
+  labels:
+    app: productpage
+    service: productpage
+spec:
+  ports:
+  - port: 9080
+    name: http
+  selector:
+    app: productpage
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: bookinfo-productpage
+  labels:
+    account: productpage
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: productpage-v1
+  labels:
+    app: productpage
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: productpage
+      version: v1
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9080'
+        prometheus.io/path: /metrics
+      labels:
+        app: productpage
+        version: v1
+    spec:
+      serviceAccountName: bookinfo-productpage
+      containers:
+      - name: productpage
+        image: course/productpage:bootstrap
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9080
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 1000m
+            memory: 256Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          runAsNonRoot: true
+          runAsUser: 1000
+          seccompProfile:
+            type: RuntimeDefault
+        readinessProbe:
+          httpGet: &id001
+            path: /health
+            port: 9080
+          periodSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          httpGet: *id001
+          periodSeconds: 10
+          failureThreshold: 3
+        startupProbe:
+          httpGet: *id001
+          periodSeconds: 5
+          failureThreshold: 60
+        env:
+        - name: LAB_FAULT_MODE
+          value: 'off'
+        - name: SESSION_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: productpage-session
+              key: secret
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 1000
+  progressDeadlineSeconds: 180
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: details
+  labels:
+    app: details
+    service: details
+spec:
+  ports:
+  - port: 9080
+    name: http
+  selector:
+    app: details
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: bookinfo-details
+  labels:
+    account: details
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: details-v1
+  labels:
+    app: details
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: details
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: details
+        version: v1
+    spec:
+      serviceAccountName: bookinfo-details
+      containers:
+      - name: details
+        image: course/details:bootstrap
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9080
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 1000m
+            memory: 256Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          runAsNonRoot: true
+          runAsUser: 1000
+          seccompProfile:
+            type: RuntimeDefault
+        readinessProbe:
+          tcpSocket: &id001
+            port: 9080
+          periodSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          tcpSocket: *id001
+          periodSeconds: 10
+          failureThreshold: 3
+        startupProbe:
+          tcpSocket: *id001
+          periodSeconds: 5
+          failureThreshold: 60
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 1000
+  progressDeadlineSeconds: 180
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ratings
+  labels:
+    app: ratings
+    service: ratings
+spec:
+  ports:
+  - port: 9080
+    name: http
+  selector:
+    app: ratings
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: bookinfo-ratings
+  labels:
+    account: ratings
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ratings-v1
+  labels:
+    app: ratings
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ratings
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: ratings
+        version: v1
+    spec:
+      serviceAccountName: bookinfo-ratings
+      containers:
+      - name: ratings
+        image: course/ratings:bootstrap
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: SERVICE_VERSION
+          value: v1
+        ports:
+        - containerPort: 9080
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 1000m
+            memory: 256Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          runAsNonRoot: true
+          runAsUser: 1000
+          seccompProfile:
+            type: RuntimeDefault
+        readinessProbe:
+          tcpSocket: &id001
+            port: 9080
+          periodSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          tcpSocket: *id001
+          periodSeconds: 10
+          failureThreshold: 3
+        startupProbe:
+          tcpSocket: *id001
+          periodSeconds: 5
+          failureThreshold: 60
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 1000
+  progressDeadlineSeconds: 180
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reviews
+  labels:
+    app: reviews
+    service: reviews
+spec:
+  ports:
+  - port: 9080
+    name: http
+  selector:
+    app: reviews
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: bookinfo-reviews
+  labels:
+    account: reviews
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reviews-v1
+  labels:
+    app: reviews
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reviews
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: reviews
+        version: v1
+    spec:
+      serviceAccountName: bookinfo-reviews
+      containers:
+      - name: reviews
+        image: course/reviews:bootstrap
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: LOG_DIR
+          value: /tmp/logs
+        - name: ENABLE_RATINGS
+          value: 'false'
+        - name: DB_TYPE
+          value: mongodb
+        ports:
+        - containerPort: 9080
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: wlp-output
+          mountPath: /opt/ol/wlp/output
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 1000m
+            memory: 768Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          runAsNonRoot: true
+          runAsUser: 1001
+          seccompProfile:
+            type: RuntimeDefault
+        readinessProbe:
+          tcpSocket: &id001
+            port: 9080
+          periodSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          tcpSocket: *id001
+          periodSeconds: 10
+          failureThreshold: 3
+        startupProbe:
+          tcpSocket: *id001
+          periodSeconds: 5
+          failureThreshold: 60
+      volumes:
+      - name: wlp-output
+        emptyDir: {}
+      - name: tmp
+        emptyDir: {}
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 1001
+  progressDeadlineSeconds: 180
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reviews-v2
+  labels:
+    app: reviews
+    version: v2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reviews
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: reviews
+        version: v2
+    spec:
+      serviceAccountName: bookinfo-reviews
+      containers:
+      - name: reviews
+        image: course/reviews:bootstrap
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: LOG_DIR
+          value: /tmp/logs
+        - name: ENABLE_RATINGS
+          value: 'true'
+        - name: STAR_COLOR
+          value: black
+        - name: DB_TYPE
+          value: mongodb
+        ports:
+        - containerPort: 9080
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: wlp-output
+          mountPath: /opt/ol/wlp/output
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 1000m
+            memory: 768Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          runAsNonRoot: true
+          runAsUser: 1001
+          seccompProfile:
+            type: RuntimeDefault
+        readinessProbe:
+          tcpSocket: &id001
+            port: 9080
+          periodSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          tcpSocket: *id001
+          periodSeconds: 10
+          failureThreshold: 3
+        startupProbe:
+          tcpSocket: *id001
+          periodSeconds: 5
+          failureThreshold: 60
+      volumes:
+      - name: wlp-output
+        emptyDir: {}
+      - name: tmp
+        emptyDir: {}
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 1001
+  progressDeadlineSeconds: 180
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reviews-v3
+  labels:
+    app: reviews
+    version: v3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reviews
+      version: v3
+  template:
+    metadata:
+      labels:
+        app: reviews
+        version: v3
+    spec:
+      serviceAccountName: bookinfo-reviews
+      containers:
+      - name: reviews
+        image: course/reviews:bootstrap
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: LOG_DIR
+          value: /tmp/logs
+        - name: ENABLE_RATINGS
+          value: 'true'
+        - name: STAR_COLOR
+          value: red
+        - name: DB_TYPE
+          value: mongodb
+        ports:
+        - containerPort: 9080
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: wlp-output
+          mountPath: /opt/ol/wlp/output
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 1000m
+            memory: 768Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          runAsNonRoot: true
+          runAsUser: 1001
+          seccompProfile:
+            type: RuntimeDefault
+        readinessProbe:
+          tcpSocket: &id001
+            port: 9080
+          periodSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          tcpSocket: *id001
+          periodSeconds: 10
+          failureThreshold: 3
+        startupProbe:
+          tcpSocket: *id001
+          periodSeconds: 5
+          failureThreshold: 60
+      volumes:
+      - name: wlp-output
+        emptyDir: {}
+      - name: tmp
+        emptyDir: {}
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 1001
+  progressDeadlineSeconds: 180

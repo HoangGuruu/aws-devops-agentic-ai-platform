@@ -1,0 +1,25 @@
+name: Pull request container checks
+on: [pull_request]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: {service: [productpage, details, ratings, reviews]}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./bookinfo/src/${{ matrix.service }}
+          load: true
+          push: false
+          tags: local/${{ matrix.service }}:test
+      - uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: local/${{ matrix.service }}:test
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'

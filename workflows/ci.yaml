@@ -1,0 +1,50 @@
+name: CI build and release proposal
+on:
+  push:
+    branches: [main]
+    paths: ['bookinfo/src/**', '.github/workflows/ci.yaml', '.github/workflows/build-service.yaml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: course-ci-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  publish:
+    strategy:
+      fail-fast: false
+      matrix: {service: [productpage, details, ratings, reviews]}
+    uses: ./.github/workflows/build-service.yaml
+    with:
+      service: ${{ matrix.service }}
+      publish: true
+      environment: develop
+    permissions:
+      contents: read
+      id-token: write
+  release:
+    needs: publish
+    runs-on: ubuntu-latest
+    environment: develop
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.13'}
+      - run: pip install -r requirements-dev.txt
+      - name: Update GitOps image refs
+        env:
+          REGISTRY: ${{ vars.ECR_REGISTRY }}
+          PREFIX: ${{ vars.ECR_PREFIX }}
+          TAG: ${{ github.sha }}
+        run: python scripts/set_images.py --environment develop --registry "$REGISTRY" --prefix "$PREFIX" --tag "$TAG"
+      - name: Propose release for human review
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: release/bookinfo-${{ github.sha }}
+          commit-message: 'release: promote scanned Bookinfo images'
+          title: 'Release Bookinfo ${{ github.sha }}'
+          body: 'All four image builds/scans passed. Review image refs; merging updates Argo CD desired state. No direct cluster credentials are used by CI.'
+          add-paths: gitops/overlays/develop/kustomization.yaml

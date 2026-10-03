@@ -1,0 +1,51 @@
+# Replace example.com and admin@example.com. Requires Istio, Gateway API, cert-manager.
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: bookinfo
+  namespace: bookinfo-develop
+spec:
+  gatewayClassName: istio
+  infrastructure:
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-type: external
+      service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
+      service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+  listeners:
+    - name: http
+      port: 80
+      protocol: HTTP
+      hostname: bookinfo.example.com
+      allowedRoutes: {namespaces: {from: Same}}
+    - name: https
+      port: 443
+      protocol: HTTPS
+      hostname: bookinfo.example.com
+      tls:
+        mode: Terminate
+        certificateRefs: [{name: bookinfo-tls}]
+      allowedRoutes: {namespaces: {from: Same}}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: bookinfo
+  namespace: bookinfo-develop
+spec:
+  parentRefs: [{name: bookinfo, sectionName: https}]
+  hostnames: [bookinfo.example.com]
+  rules:
+    - backendRefs: [{name: productpage, port: 9080}]
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: redirect-https
+  namespace: bookinfo-develop
+spec:
+  parentRefs: [{name: bookinfo, sectionName: http}]
+  hostnames: [bookinfo.example.com]
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect: {scheme: https, statusCode: 301}

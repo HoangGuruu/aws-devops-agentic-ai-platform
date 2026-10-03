@@ -1,0 +1,42 @@
+{
+  "inspect_kubernetes": {
+    "namespace": "bookinfo-develop",
+    "deployment": "productpage-v1",
+    "available": 1,
+    "desired": 1,
+    "fault_mode": "http500",
+    "pods": [
+      {
+        "name": "productpage-v1-demo",
+        "phase": "Running",
+        "ready": true
+      }
+    ]
+  },
+  "read_logs": "lab_incident: release introduced productpage HTTP 500",
+  "query_metrics": {
+    "status": "success",
+    "data": {
+      "result": [
+        {
+          "metric": {},
+          "value": [
+            0,
+            "1"
+          ]
+        }
+      ]
+    },
+    "note": "Synthetic error ratio 1.0"
+  },
+  "inspect_gitops": {
+    "application": "bookinfo-develop",
+    "status": {
+      "status": "Synced",
+      "revision": "demo-fixture"
+    },
+    "health": {
+      "status": "Healthy"
+    }
+  }
+}

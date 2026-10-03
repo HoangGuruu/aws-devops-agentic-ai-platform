@@ -1,0 +1,17 @@
+grafana:
+  service:
+    type: ClusterIP
+prometheus:
+  prometheusSpec:
+    retention: 24h
+    serviceMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+    resources:
+      requests: {cpu: 200m, memory: 512Mi}
+      limits: {memory: 1Gi}
+alertmanager:
+  alertmanagerSpec:
+    alertmanagerConfigSelector: {}
+    alertmanagerConfigNamespaceSelector: {}
+    alertmanagerConfigMatcherStrategy:
+      type: None

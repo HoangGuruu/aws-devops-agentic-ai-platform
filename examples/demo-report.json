@@ -1,0 +1,84 @@
+{
+  "mode": "offline-fixture-NOT-an-LLM",
+  "completed": true,
+  "report": "Fixture exercise: productpage fault flag correlates with HTTP 500. Review runbook and propose GitOps rollback. No cloud model or live cluster was contacted.",
+  "trace": [
+    {
+      "tool": "query_metrics",
+      "result": {
+        "status": "success",
+        "data": {
+          "result": [
+            {
+              "metric": {},
+              "value": [
+                0,
+                "1"
+              ]
+            }
+          ]
+        },
+        "note": "Synthetic error ratio 1.0"
+      }
+    },
+    {
+      "tool": "inspect_kubernetes",
+      "result": {
+        "namespace": "bookinfo-develop",
+        "deployment": "productpage-v1",
+        "available": 1,
+        "desired": 1,
+        "fault_mode": "http500",
+        "pods": [
+          {
+            "name": "productpage-v1-demo",
+            "phase": "Running",
+            "ready": true
+          }
+        ]
+      }
+    },
+    {
+      "tool": "read_logs",
+      "result": "lab_incident: release introduced productpage HTTP 500"
+    },
+    {
+      "tool": "inspect_gitops",
+      "result": {
+        "application": "bookinfo-develop",
+        "status": {
+          "status": "Synced",
+          "revision": "demo-fixture"
+        },
+        "health": {
+          "status": "Healthy"
+        }
+      }
+    },
+    {
+      "tool": "search_runbooks",
+      "result": {
+        "source": "local-lexical-retrieval",
+        "results": [
+          {
+            "source": "http500.md",
+            "text": "# Productpage HTTP 500 after a release\nScope: isolated Bookinfo development lab. Alert: BookinfoHighErrorRate.\n\nSymptoms: /productpage returns 500 while /health and Kubernetes readiness remain green.\nArgo CD may be Synced and Healthy. That does not prove the business endpoint works.\n\n1. Record the alert time and last release revision.\n2. Inspect productpage deployment and LAB_FAULT_MODE (the only allowlisted env field).\n3. Query productpage 5xx ratio. Read bounded productpage logs.\n4. If LAB_FAULT_MODE=http500 and logs contain `lab_incident`, the injected release is the likely cause.\n5. Propose rollback of the latest isolated release.yaml commit to its parent, where fault mode is off.\n6. A human reviews the exact diff and approves its SHA256 digest within 15 minutes.\n7. The operator commits/pushes the recovery; Argo CD syncs Git. Never use kubectl rollout undo under auto-sync.\n8. Verify Argo Synced, Deployment available, LAB_FAULT_MODE=off and /productpage HTTP 200.\n9. Continue traffic for at least two minutes, inspect metrics and confirm alert resolves.\n10. Report impact, evidence, cause, recovery commit, time to recover and prevention.\n\nDo not restart or scale as a substitute for reverting a deterministic application fault.\nDo not claim recovery from a successful git push alone.\n",
+            "score": 4
+          },
+          {
+            "source": "capacity.md",
+            "text": "# Capacity, restart and unavailable pods\nRead namespace-scoped pods/events, requests/limits and node capacity before acting.\nA restart can help a transient process fault but will not fix a bad image, secret, or insufficient capacity.\nScale proposals are limited to 1..4 productpage replicas. Disable the HPA lab and let GitOps own replicas before using the scale exercise; otherwise the two controllers conflict.\nDo not scale a deployment that has a deterministic http500 fault. Keep node scaling separate in Terraform.\nEscalate missing permissions, inaccessible metrics and unknown causes to a human.\nThe agent cannot create, delete, exec into pods, change IAM, or read Kubernetes Secrets.\n",
+            "score": 2
+          }
+        ]
+      }
+    }
+  ],
+  "usage": {
+    "inputTokens": 0,
+    "outputTokens": 0
+  },
+  "proposals": [],
+  "recovery_verified": false,
+  "evidence_source": "demo"
+}

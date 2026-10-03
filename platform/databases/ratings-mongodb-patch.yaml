@@ -1,0 +1,14 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: ratings-v1}
+spec:
+  template:
+    spec:
+      containers:
+        - name: ratings
+          env:
+            - {name: SERVICE_VERSION, value: v2}
+            - {name: DB_TYPE, value: mongodb}
+            - name: MONGO_DB_URL
+              valueFrom:
+                secretKeyRef: {name: ratings-database, key: MONGO_DB_URL}

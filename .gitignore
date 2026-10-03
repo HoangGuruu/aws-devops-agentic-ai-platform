@@ -1,0 +1,22 @@
+.terraform/
+*.tfstate*
+*.tfplan
+*.tfvars
+!*.tfvars.example
+!legacy/terraform/terraform.develop.tfvars
+backend.hcl
+.env
+.venv/
+__pycache__/
+*.pyc
+reports/
+*.pem
+*.key
+node_modules/
+agent/.bedrock_agentcore.yaml
+agent/.bedrock_agentcore/
+
+# Course owner material and distributable archive inventory
+/instructor/
+/legacy/
+/MANIFEST.json

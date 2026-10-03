@@ -1,0 +1,16 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: ratings-v1}
+spec:
+  template:
+    spec:
+      containers:
+        - name: ratings
+          env:
+            - {name: SERVICE_VERSION, value: v2}
+            - {name: DB_TYPE, value: mysql}
+            - {name: MYSQL_DB_HOST, value: mysql}
+            - {name: MYSQL_DB_PORT, value: '3306'}
+            - {name: MYSQL_DB_USER, value: ratings}
+            - name: MYSQL_DB_PASSWORD
+              valueFrom: {secretKeyRef: {name: mysql-credentials, key: password}}

@@ -1,0 +1,60 @@
+name: Reusable service build
+on:
+  workflow_call:
+    inputs:
+      service: {required: true, type: string}
+      publish: {required: true, type: boolean}
+      environment: {required: true, type: string}
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build correct service context
+        uses: docker/build-push-action@v6
+        with:
+          context: ./bookinfo/src/${{ inputs.service }}
+          load: true
+          push: false
+          tags: local/${{ inputs.service }}:${{ github.sha }}
+          cache-from: type=gha,scope=${{ inputs.service }}
+          cache-to: type=gha,mode=max,scope=${{ inputs.service }}
+      - name: Scan OS and dependency vulnerabilities
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: local/${{ inputs.service }}:${{ github.sha }}
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'
+      - name: Assume environment-scoped AWS role
+        if: inputs.publish
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_CI_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: ECR login
+        if: inputs.publish
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Publish immutable image
+        if: inputs.publish
+        env:
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+          PREFIX: ${{ vars.ECR_PREFIX }}
+          SERVICE: ${{ inputs.service }}
+          TAG: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          target="$REGISTRY/$PREFIX/$SERVICE:$TAG"
+          # ECR is immutable. Rerun can reuse an already published tag for this exact commit.
+          if aws ecr batch-get-image --repository-name "$PREFIX/$SERVICE" --image-ids imageTag="$TAG" --query 'images[0].imageId.imageDigest' --output text | grep -q '^sha256:'; then
+            echo "Image already published for this commit"
+          else
+            docker tag "local/$SERVICE:$TAG" "$target"
+            docker push "$target"
+          fi

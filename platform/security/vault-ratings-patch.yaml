@@ -1,0 +1,23 @@
+# Apply with Kustomize ONLY after configuring Vault auth and secret (docs/07-operations.md).
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: ratings-v1}
+spec:
+  template:
+    metadata:
+      annotations:
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/role: bookinfo-ratings
+        vault.hashicorp.com/agent-inject-secret-db.json: secret/data/ratings
+        vault.hashicorp.com/agent-inject-template-db.json: |
+          {{- with secret "secret/data/ratings" -}}
+          {{ .Data.data | toJSON }}
+          {{- end }}
+    spec:
+      automountServiceAccountToken: true
+      containers:
+        - name: ratings
+          env:
+            - {name: SERVICE_VERSION, value: v2}
+            - {name: DB_TYPE, value: mongodb}
+            - {name: VAULT_DB_FILE, value: /vault/secrets/db.json}

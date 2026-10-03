@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: productpage-v1
+spec:
+  template:
+    spec:
+      containers:
+      - name: productpage
+        env:
+        - name: LAB_FAULT_MODE
+          value: 'off'
