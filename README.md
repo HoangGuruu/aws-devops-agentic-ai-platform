@@ -27,4 +27,3 @@ References: [Architecture](docs/architecture.md), [Troubleshooting](docs/TROUBLE
 
 Use one `develop` environment. Follow the examples on Ubuntu 24.04 x86_64 or Ubuntu in WSL2. Cloud resources incur charges; read the cleanup lesson before provisioning them.
 
-The `instructor/` folder contains owner-only notes. The `legacy/` folder is an archive and is not part of these exercises. Source attribution is in [NOTICE.md](NOTICE.md).
