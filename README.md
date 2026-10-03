@@ -1,6 +1,12 @@
 # DevOps on AWS & AI — Step-by-Step Lab
 
+## [Udemy Course](https://www.udemy.com/course/devops-on-aws-real-project-all-in-one/?referralCode=3F783CCB917A27EBB1E1)
+
+[![banner-1](./images/banner-1.png)](https://www.udemy.com/course/devops-on-aws-real-project-all-in-one/?referralCode=3F783CCB917A27EBB1E1)
+
 Build Bookinfo on AWS, operate it with GitOps, and use an AI agent to investigate an incident.
+
+![architecture-1](./images/Architecture-1.gif)
 
 Start with [START_HERE.md](START_HERE.md). Each lesson explains what to change, why it matters, which command to run, and what you should see next.
 
